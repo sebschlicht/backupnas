@@ -1,14 +1,14 @@
 # NAS
 
 This document researches and describes the requirements for a home NAS to backup files.
-Later on, setup instructions and configurations will be presented.
+Later on, setup instructions and configurations follow.
 
 ## Requirements
 
 ### Compatibility
 
-* All systems SHOULD be able to read from and write to the NAS.
-* Windows and Linux systems MUST be supported.
+* All systems SHOULD be able to read from the NAS.
+* Windows and Linux systems MUST be able to read from the NAS.
 * The NAS SHOULD be mountable from Linux systems.
 * The NAS system SHOULD be accessible via SSH.
 * The NAS SHOULD be readable/writable via SSH.
@@ -43,7 +43,7 @@ Availability       | undo        | SHOULD   |
 Security           | auth        | MUST     | 
 Security           | rights-w    | SHOULD   | 
 Security           | rights-r    | COULD    | 
-Security           | rights-linux | COULD    | 
+Security           | rights-linux | COULD   | 
 
 ## Setup
 
@@ -85,6 +85,7 @@ Samba config: `/etc/samba/smb.conf`
    **Explanation**
    * The `valid users` directive limits the access to the user that the share has been created for.
    * The `mask` directives ensure that the permissions of new files (and directories) match the default file permissions when working on disk.
+   * `writeable` activates write access for valid users. On a backup system this *may not* be desired! 
 
 1. Restart the Samba server to apply the config changes.
 
