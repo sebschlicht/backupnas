@@ -26,7 +26,7 @@ fc_anacron () {
   USER_DCFG=~/etc
   if [ ! -d "$USER_DCFG" ]; then
     if ! mkdir "$USER_DCFG"; then
-      printf 'Failed to create user configuration directory "%s"!' $USER_DCFG
+      printf 'Failed to create user configuration directory "%s"!' "$USER_DCFG"
       exit 1
     fi
   fi
@@ -43,6 +43,15 @@ fc_anacron () {
     else
       fc_info 'Appending entry to existing user anacrontab.'
       echo "$ANAENT" >> "$USER_ANATAB"
+    fi
+  fi
+
+  # create anacron spool directory
+  USER_ANASPOOL=~/var/spool/anacron
+  if [ ! -d "$USER_ANASPOOL" ]; then
+    if ! mkdir -p "$USER_ANASPOOL"; then
+      printf 'Failed to create anacron spool directory "%s"!' "$USER_ANASPOOL"
+      exit 1
     fi
   fi
   
@@ -63,8 +72,22 @@ fc_anacron () {
   fi
 }
 
-# TODO install backup script to /usr/local/bin
-# TODO use default backup config path in anacrontab OR ask user for config file paths
+# install backup script to /usr/local/bin
+USER=$( whoami )
+BACKUPNAS=backupnas.sh
+USER_BACKUPNAS=/usr/local/bin/backupnas.sh
+sudo cp "$BACKUPNAS" "$USER_BACKUPNAS"
+sudo chown "$USER":"$USER" "$USER_BACKUPNAS"
+chmod u+x "$USER_BACKUPNAS"
+
+# copy example configuration files to configuration folder
+NBEXCFG=config-examples
+USER_NBCFG=~/.nb
+USER_NBEXCFG="$USER_NBCFG"/examples
+if [ ! -d "$USER_NBEXCFG" ]; then
+  mkdir -p "$USER_NBEXCFG"
+fi
+cp "$NBEXCFG"/* "$USER_NBEXCFG"
 
 # create user anacrontab calling the backup script
 fc_anacron

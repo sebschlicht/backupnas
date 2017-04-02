@@ -1,5 +1,5 @@
 #!/bin/bash
-readonly PROGRAM_NAME='backnas'
+readonly PROGRAM_NAME='backupnas'
 readonly PROGRAM_TITLE='NAS Backup Script'
 QUIET=false
 CFGPREFIX='NB'
@@ -239,9 +239,15 @@ fc_push () {
   if [ -n "$NB_SAMBA_USER" ]; then
     # disable permissions if backup destination is Samba share
     ARGS+=('--no-p' "$SOURCE" "$TARGET")
-  elif [ "$NB_USE_SSH" = true ]; then
-    # specify SSH username and target so the user doesn't have to specify them in the mapping file
-    ARGS+=('-e' 'ssh' "$SOURCE" "$NB_SSH_USERNAME@$NB_SSH_REMOTE:$TARGET")
+  elif [ -n "$NB_SSH_REMOTE" ]; then
+    ARGS+=('-e' 'ssh')
+
+    # specify SSH remote (and username)
+    if [ -n "$NB_SSH_USERNAME" ]; then
+      ARGS+=("$NB_SSH_USERNAME@$NB_SSH_REMOTE:$TARGET")
+    else
+      ARGS+=("$NB_SSH_REMOTE:$TARGET")
+    fi
   fi
   rsync "${ARGS[@]}"
 }

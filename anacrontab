@@ -6,4 +6,4 @@ SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # period  delay  job-identifier  command
-1         2      user.backup     /usr/local/bin/backnas.sh -p ~/.nb/ssh.config
+1         2      user.backup     /usr/local/bin/backupnas.sh -p ~/.nb/ssh.config
