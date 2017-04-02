@@ -38,7 +38,7 @@ fc_anacron () {
     cp "$ANATAB" "$USER_ANATAB"
   else
     ANAENT=$( tail -1 "$ANATAB" )
-    if grep "$USER_ANATAB" -e "$ANAENT" &>/dev/null; then
+    if grep -q "$USER_ANATAB" -e "$ANAENT"; then
       fc_info 'Skipping existing anacrontab entry.'
     else
       fc_info 'Appending entry to existing user anacrontab.'
@@ -62,8 +62,7 @@ fc_anacron () {
     cp "$PROF" "$USER_PROFILE"
   else
     PROFENT=$( cat "$PROF" )
-    # TODO grep returns true if one of the lines has been found
-    if grep "$USER_PROFILE" -e "$PROFENT" &>/dev/null; then
+    if grep -q "$USER_PROFILE" -e "$PROFENT"; then
       fc_info 'Skipping existing user profile entry.'
     else
       fc_info 'Appending entry to existing user profile.'
@@ -77,8 +76,7 @@ USER=$( whoami )
 BACKUPNAS=backupnas.sh
 USER_BACKUPNAS=/usr/local/bin/backupnas.sh
 sudo cp "$BACKUPNAS" "$USER_BACKUPNAS"
-sudo chown "$USER":"$USER" "$USER_BACKUPNAS"
-chmod u+x "$USER_BACKUPNAS"
+sudo chmod 755 "$USER_BACKUPNAS"
 
 # copy example configuration files to configuration folder
 NBEXCFG=config-examples
