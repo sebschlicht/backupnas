@@ -240,7 +240,7 @@ fc_push () {
     # disable permissions if backup destination is Samba share
     ARGS+=('--no-p' "$SOURCE" "$TARGET")
   elif [ -n "$NB_SSH_REMOTE" ]; then
-    ARGS+=('-e' 'ssh')
+    ARGS+=('-e' 'ssh' "$SOURCE")
 
     # specify SSH remote (and username)
     if [ -n "$NB_SSH_USERNAME" ]; then
