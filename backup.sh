@@ -5,7 +5,7 @@ QUIET=false
 CFGPREFIX='NB'
 
 # variable initialization section
-LOCKPATH=/tmp/backup.lock
+LOCKPATH=/tmp/backnas.lock
 PROFILE_PATH=
 SOURCE_PATH=
 TARGET_PATH=
@@ -184,9 +184,9 @@ override_config () {
   done
 }
 
-##############################
+###############################
 # main script function section
-##############################
+###############################
 
 # Checks whether a mount point is mounted or not.
 fc_is_mounted () {
@@ -246,9 +246,9 @@ fc_push () {
   rsync "${ARGS[@]}"
 }
 
-#############
+##############
 # entry point
-#############
+##############
 parseArguments "$@"
 SUCCESS=$?
 if [ "$SUCCESS" -ne 0 ]; then

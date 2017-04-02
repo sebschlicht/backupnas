@@ -63,5 +63,8 @@ fc_anacron () {
   fi
 }
 
+# TODO install backup script to /usr/local/bin
+# TODO use default backup config path in anacrontab OR ask user for config file paths
+
 # create user anacrontab calling the backup script
 fc_anacron
