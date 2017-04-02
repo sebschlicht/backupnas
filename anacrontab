@@ -1,0 +1,9 @@
+# /etc/anacrontab: configuration file for anacron
+
+# See anacron(8) and anacrontab(5) for details.
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# period  delay  job-identifier  command
+1         2      user.backup     /usr/local/bin/backnas.sh -p ~/.nas.pi.ssh.config
