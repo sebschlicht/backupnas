@@ -31,12 +31,12 @@ If you want to elaborate on what's possible first, head to the [configuration se
        cp backup.ignore ../
        ln -s ../ssh.config ../backup.config
        
-1. Edit the SSH connection information in the `ssh.config`.  
+1. Edit the SSH remote and username in the `ssh.config`.  
    Please note that *NB* uses the user's default SSH key to connect via SSH.
 
 1. Edit the `ssh.map` file to your needs.
    Each line maps a local directory to its (remote) backup location.  
-   For example, the first line in the example file pushes the local folder `/data/sebschlicht/documents/` to `/mnt/nas/main/backup/sebastian/documents` on the backup system.
+   For example, the first line in the example file pushes the local folder `/data/sebschlicht/documents` to `/mnt/nas/main/backup/sebastian/documents` on the backup system.
 
 ## Configuration
 
