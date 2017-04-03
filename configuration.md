@@ -2,8 +2,8 @@
 
 *NB* supports up to three types of configuration files:
 1. *NB* configuration files (`.config`)
-1. [optional] mapping files (`.map`)
-1. [optional] exclusion files (`.ignore`)
+1. <small>[optional]</small> mapping files (`.map`)
+1. <small>[optional]</small> exclusion files (`.ignore`)
 
 ## *NB* Configuration
 
@@ -21,7 +21,7 @@ NB_EXCLUSION_FILE | none | Path to the exclusion file.
 NB_MOUNTPOINT | none | Mount point to be mounted prior to the backup.
 NB_SAMBA_USER | none | Samba user to use when mounting a Samba share mount point. The user will be prompted for the password. If you don't want to have to enter a password, specify the credentials in the *fstab* entry instead.
 NB_SSH_REMOTE | none   | Remote machine to backup files to via SSH.
-NB_SSH_USERNAME | none | Name of the remote user to login to via SSH.
+NB_SSH_USERNAME | none | Name of the remote user to login to via SSH. Only necessary if local and remote usernames differ.
 NB_DRY_RUN | false     | Dry run flag. If set to `true` no changes will be performed. A summary of changes (that weren't made) will still be printed.
 
 ## Mapping File

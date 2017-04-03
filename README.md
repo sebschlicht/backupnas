@@ -1,10 +1,14 @@
 # NAS Backup Script
 
 The NAS backup script (*NB*) can be used to automate the process of backing up files to a local or remote location.
-Using *rsync* under the hood, it supports backing up files to remote machines via SSH (authentication only via SSH key) and to NAS systems (Samba shares).
+
+*NB* supports to backup files to:
+* another local directory
+* a Samba share that *NB* mounts automatically
+* a remote machine via SSH (authentication only via SSH key)
 
 *NB* pushes user-defined locations to their declared destinations on a daily basis.
-These locations and their destinations are defined in a single mapping file.
+These locations and their destinations can be defined in a single mapping file.
 
 Newer files will never be overridden and no files will be removed at the backup location.
 However, this behavior can be changed.
@@ -38,12 +42,12 @@ If you want to elaborate on what's possible first, head to the [configuration se
    Each line maps a local directory to its (remote) backup location.  
    For example, the first line in the example file pushes the local folder `/data/sebschlicht/documents` to `/mnt/nas/main/backup/sebastian/documents` on the backup system.
 
-## Example Configurations
+## Example Setups
 
 There are three types of [configuration files](configuration.md) that the NAS backup script supports.
 1. `.config` files: Specifies general configuration options.
-1. [optional] `.map` files: Maps backup source paths to their destination path.
-1. [optional] `.ignore` files: Allows to define exclusion patterns.
+1. <small>[optional]</small> `.map` files: Maps backup source paths to their destination path.
+1. <small>[optional]</small> `.ignore` files: Allows to define exclusion patterns.
 
 Here are two configuration examples, one for backups via SSH and one to a Samba server. 
 
