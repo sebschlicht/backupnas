@@ -23,8 +23,7 @@ To install the Samba server simply use `apt-get`.
 
 ## NTFS
 
-*If* you're using a hard disk using NTFS, you can use the following *fstab* entry as a starting point.
-Please note that you may have to adopt the `locale` parameter to match your needs.
+**If** you want to put the NAS on a hard disk with NTFS, you can use the following *fstab* entry as a *starting point*.
 
     UUID=...   /mnt/nas/main ntfs-3g windows_names,permissions,defaults,auto,locale=de_DE.utf8
 
