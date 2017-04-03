@@ -249,6 +249,7 @@ fc_push () {
       ARGS+=("$NB_SSH_REMOTE:$TARGET")
     fi
   fi
+  #TODO log rsync/program output to daily/instance log file
   rsync "${ARGS[@]}"
 }
 
