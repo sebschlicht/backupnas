@@ -163,7 +163,7 @@ Finally activate the config.
     ln -s ~/.nb/samba.config ~/.nb/backup.config
 
 That's it.
-The next time the user logs into his account and backups haven't been made for a day, *NB* will push our directories to their respective remote location on *pi* via SSH using the user's SSH key.
+The next time the user logs into his account and backups haven't been made for a day, *NB* will push our directories to their respective location on the mounted Samba share.
 
 ## Related
 
