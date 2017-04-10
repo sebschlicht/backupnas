@@ -219,7 +219,7 @@ fc_mount () {
 # Initializes relevant environment variables to unlock the user's SSH key.
 fc_init_ssh () {
   #TODO compatibility? test if new bash opened here has SSH_AUTH_SOCK set
-  SSH_AUTH_SOCK=/run/user/"$UID"/keyring/ssh
+  SSH_AUTH_SOCK=$(ls -t1 /run/user/"$UID"/keyring*/ssh | head -n 1)
   export SSH_AUTH_SOCK
 }
 
