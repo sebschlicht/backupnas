@@ -2,7 +2,7 @@
 readonly PROGRAM_NAME='backupnas'
 readonly PROGRAM_TITLE='NAS Backup Script'
 QUIET=false
-CFGPREFIX='NB'
+readonly CFGPREFIX='NB'
 
 # variable initialization section
 LOCKPATH=/tmp/backnas.lock
@@ -216,6 +216,13 @@ fc_mount () {
   return $(fc_is_mounted "$NB_MOUNTPOINT")
 }
 
+# Initializes relevant environment variables to unlock the user's SSH key.
+fc_init_ssh () {
+  #TODO compatibility? test if new bash opened here has SSH_AUTH_SOCK set
+  SSH_AUTH_SOCK=/run/user/"$UID"/keyring/ssh
+  export SSH_AUTH_SOCK
+}
+
 # Pushes a directory structure from one location to another.
 # Supports NB_EXCLUSION_FILE and NB_DRY_RUN.
 fc_push () {
@@ -241,6 +248,11 @@ fc_push () {
     ARGS+=('--no-p' "$SOURCE" "$TARGET")
   elif [ -n "$NB_SSH_REMOTE" ]; then
     ARGS+=('-e' 'ssh' "$SOURCE")
+
+    # connect to ssh-agent
+    local USER=$( whoami )
+    fc_info "SSH mode enabled, using keys of user '$USER'"
+    fc_init_ssh
 
     # specify SSH remote (and username)
     if [ -n "$NB_SSH_USERNAME" ]; then
@@ -290,6 +302,7 @@ fi
 if [ -n "$NB_MAPPING_FILE" ]; then
   # backup all mapping entries
   grep -v -e '^$' -e '^#' "$NB_MAPPING_FILE" | while read from to; do
+    fc_info "backing up '$from' to '$to'"
     fc_push "$from" "$to"
   done
 else
