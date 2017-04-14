@@ -47,4 +47,4 @@ This leaves you with the backup script at its place and some example configurati
 
 Due to how *NB* detects the SSH authentication socket, only Ubuntu *may* be supported for now, you simply have to try it out.
 
-If you want to use *NB* on a distro where it doesn't work yet, please [create an issue](../../issues) naming your distro and attach the log file output of the failed backup process.
+If you want to use *NB* on a distro where it doesn't work yet, please [create an issue](../../issues/new) naming your distro and attach the log file output of the failed backup process.
