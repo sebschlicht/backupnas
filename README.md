@@ -19,8 +19,7 @@ You can find the documentation in the [project's wiki](../../wiki).
 
 To install *NB* checkout this repository and execute the installer:
 
-    git clone git@github.com:sebschlicht/backupnas.git
-    cd backupnas
+    git clone git@github.com:sebschlicht/backupnas.git && cd backupnas
     ./install.sh
 
 This leaves you with the backup script at its place and some example configuration files at `~/.nb/examples`.
@@ -35,11 +34,13 @@ This leaves you with the backup script at its place and some example configurati
        ln -s ../ssh.config ../backup.config
        
 1. Edit the SSH remote and username in the `ssh.config`.  
-   Please note that *NB* uses the user's default SSH key to connect via SSH.
 
 1. Edit the `ssh.map` file to match your needs.
    Each line maps a local directory to its backup location.  
    For example, the first line in the SSH example file pushes the local folder `/data/sebschlicht/documents` to `/mnt/nas/main/backup/sebastian/documents` on the backup system.
+
+That's it! If you login to your machine next time and it's been at least one day since the last backup, your files will be backed up.  
+Please note that *NB* uses the user's default SSH key to SSH into the remote machine and you will be promted to unlock this key if it's encrypted.
 
 ## Compatibility
 
