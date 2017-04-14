@@ -1,17 +1,19 @@
 # NAS Backup Script
 
-The NAS backup script (*NB*) can be used to automate the process of backing up multiple directories or files to a local or remote location.
+The NAS backup script (*NB*) can be used to automate the process of backing up multiple directories or files to local or remote locations.
 
 *NB* supports to backup files to:
 * another local directory
-* a Samba share that *NB* mounts automatically
-* a remote machine via SSH (SSH key authentification)
+* a Samba share that is automatically mounted by *NB*
+* a remote machine via SSH (SSH key authentication)
 
-*NB* pushes user-defined locations to their declared destinations on a daily basis, by defining an *Anacron* job.
-These locations and their destinations can be defined in a single mapping file.
-
+*NB* pushes user-defined locations to their declared destinations on a daily basis via an *Anacron* job.  
+The locations and their destinations can be defined in a single mapping file.  
 Newer files will never be overridden and no files will be removed at the backup location.
 However, this behavior can be changed.
+
+The following sections show how to get things running as quick as possible.
+You can find the documentation in the [project's wiki](../../wiki/).
 
 ## Installation
 
@@ -24,9 +26,6 @@ To install *NB* checkout this repository and execute the installer:
 This leaves you with the backup script at its place and some example configuration files at `~/.nb/examples`.
 
 ## Getting Started
-
-If you want a quick start, here it is.  
-If you want to elaborate on what's possible first, head to the [configuration wiki page](wiki/configuration).
 
 1. Copy the example configuration files to the configuration folder and make the SSH example configuration your active *NB* configuration.
 
