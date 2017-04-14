@@ -13,7 +13,7 @@ Newer files will never be overridden and no files will be removed at the backup 
 However, this behavior can be changed.
 
 The following sections show how to get things running as quick as possible.
-You can find the documentation in the [project's wiki](../../wiki/).
+You can find the documentation in the [project's wiki](../../wiki).
 
 ## Installation
 
@@ -47,4 +47,4 @@ This leaves you with the backup script at its place and some example configurati
 
 Due to how *NB* detects the SSH authentication socket, only Ubuntu *may* be supported for now, you simply have to try it out.
 
-If you want to use *NB* on a distro where it doesn't work yet, please [create an issue](issues) naming your distro and attach the log file output of the failed backup process.
+If you want to use *NB* on a distro where it doesn't work yet, please [create an issue](../../issues) naming your distro and attach the log file output of the failed backup process.
