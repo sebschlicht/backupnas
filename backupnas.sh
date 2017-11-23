@@ -12,14 +12,20 @@ TARGET_PATH=
 
 # Prints the usage of the script in case of using the help command.
 printUsage () {
-  # TODO
-  echo 'Usage: '"$PROGRAM_NAME"' SYNTAX'
+  echo 'Usage: '"$PROGRAM_NAME"' [OPTIONS] [SOURCE] [DESTINATION]'
   echo
-  echo 'EXPLAIN GENERAL USAGE'
+  echo "$PROGRAM_TITLE"' is a tool to backup your local files.'
+  echo 'Local directories, Samba shares and remote SSH locations are supported as backup destinations.'
+  echo
+  echo 'You can either specify a single pair of backup source and destination to backup the source directory files to the destination location.'
+  echo 'However, this method only supports single location pairs and only local/locally mounted destination directories.'
+  echo 'To backup any number of directories to local as well as remote destinations, you can create profiles.'
+  echo "Example profiles are located in '~/.nb/examples'."
   echo
   echo 'Options:'
-  echo '-h, --help	Display this help message and exit.'
-  echo 'OPTIONS'
+  echo '-h, --help	          Display this help message and exit.'
+  echo '-p, --profile <path>  Specify the path to a profile.'
+  echo '-q, --quiet           Supress all output.'
 }
 
 # Echoes an error message to stderr.
