@@ -72,7 +72,6 @@ fc_anacron () {
 }
 
 # install backup script to /usr/local/bin
-USER=$( whoami )
 BACKUPNAS=backupnas.sh
 USER_BACKUPNAS=/usr/local/bin/backupnas.sh
 sudo cp "$BACKUPNAS" "$USER_BACKUPNAS"
