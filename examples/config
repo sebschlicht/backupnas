@@ -1,0 +1,3 @@
+REMOTE_HOST=pi3
+REMOTE_USER=sebschlicht
+BACKUP_LOCATION=/mnt/nas/primary/backup/sebastian

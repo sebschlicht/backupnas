@@ -1,51 +1,48 @@
 # NAS Backup Script
 
-The NAS backup script (*NB*) can be used to automate the process of backing up multiple directories or files to local or remote locations.
+The NAS backup script (*NB*) can create automatic backups of your personal data.
+In contrast to backup tools like *duplicity*, *NB* stores your files in a way that they are directly accessible.
 
-*NB* supports to backup files to:
-* another local directory
-* a Samba share that is automatically mounted by *NB*
-* a remote machine via SSH (SSH key authentication)
+By default, a daily backup of your entire home directory will be created, where new files will be added and existing files will be updated.
+Locally removed files, however, will be left at the backup location untouched.
 
-*NB* pushes user-defined locations to their declared destinations on a daily basis via an *Anacron* job.  
-The locations and their destinations can be defined in a single mapping file.  
-Newer files will never be overridden and no files will be removed at the backup location.
-However, this behavior can be changed.
-
-The following sections show how to get things running as quick as possible.
-You can find the documentation in the [project's wiki](../../wiki).
-
-## Installation
-
-To install *NB* checkout this repository and execute the installer:
-
-    git clone git@github.com:sebschlicht/backupnas.git && cd backupnas
-    ./install.sh
-
-This leaves you with the backup script at its place and some example configuration files at `~/.nb/examples`.
+The backup location can be a local directory or a remote location, accessed via SSH (public key authentication).
 
 ## Getting Started
 
-1. Copy the example configuration files to the configuration folder and make the SSH example configuration your active *NB* configuration.
+1. Install the backup script and its [dependencies](dependencies-and-compatibility) via the installer:
 
-       cd ~/.nb/examples/
-       cp ssh.* ../
-       cp backup.ignore ../
-       ln -s ../ssh.config ../backup.config
-       
-1. Edit the SSH remote and username in the `ssh.config`.  
+       git clone git@github.com:sebschlicht/backupnas.git
+       cd backupnas
+       ./install.sh
 
-1. Edit the `ssh.map` file to match your needs.
-   Each line maps a local directory to its backup location.  
-   For example, the first line in the SSH example file pushes the local folder `/data/sebschlicht/documents` to `/mnt/nas/main/backup/sebastian/documents` on the backup system.
+1. Adapt the configuration (`~/.nb/config`) to your needs:
 
-That's it! If you login to your machine next time and it's been at least one day since the last backup, your files will be backed up.  
-Please note that *NB* uses the user's default SSH key to SSH into the remote machine and you will be promted to unlock this key if it's encrypted.
+       REMOTE_HOST=pi3
+       REMOTE_USERNAME=sebschlicht
+       BACKUP_LOCATION=/mnt/nas/primary/backup/sebschlicht
+   
+   *Note*: You may leave out the `REMOTE_*` options if you want to backup your files to a local directory.
 
-## Compatibility
+1. Done. Your home directory will be backed up to the specified location on a daily basis.  
+   You can find the output of each day's run(s) in `~/.nb/logs/`.
 
-*NB* has been tested on Ubuntu 15.04 and Ubuntu 16.04.
+## Further Configuration
 
-Due to how *NB* detects the SSH authentication socket, only Ubuntu *may* be supported for now, you simply have to try it out.
+For more information about the configuration options head to the [project's wiki](../../wiki) which covers how to
 
-If you want to use *NB* on a distro where it doesn't work yet, please [create an issue](../../issues/new) naming your distro and attach the log file output of the failed backup process.
+* exclude files from the backup
+* backup files that are outside of your home directory
+* configure a remote machine to host the backup(s)
+  * access your files from numerous devices (Windows, Linux, mobile, smartTVs)
+  * by adapting configuration files and running a single Ansible playbook
+  * mirror the backup to a second location (backup the backup)
+
+## Dependencies and Compatibility
+
+*NB* has very few dependencies (installed by the installation script automatically) and works on any system that's able to provide them:
+
+* rsync (transfer files)
+* anacron (schedule automatic execution)
+
+*NB* has been tested on Ubuntu 15.04+ (up to 18.04) but most probably will run smoothly on older versions and other distros.

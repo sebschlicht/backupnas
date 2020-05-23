@@ -2,30 +2,35 @@
 readonly PROGRAM_NAME='backupnas'
 readonly PROGRAM_TITLE='NAS Backup Script'
 QUIET=false
-readonly CFGPREFIX='NB'
+
+readonly DEFAULT_CONFIG_FILE=~/.nb/config
+readonly DEFAULT_MAPPING_FILE=~/.nb/mapping
+readonly DEFAULT_INCLUDE_FILE=~/.nb/include
+readonly DEFAULT_EXCLUDE_FILE=~/.nb/exclude
 
 # variable initialization section
-LOCKPATH=/tmp/backnas.lock
-PROFILE_PATH=
-SOURCE_PATH=
-TARGET_PATH=
+readonly LOCKPATH=~/.nb/lock
+DRY_RUN=false
+CONFIG_FILE=
+MAPPING_FILE=
+INCLUDE_FILE=
+EXCLUDE_FILE=
 
 # Prints the usage of the script in case of using the help command.
 printUsage () {
-  echo 'Usage: '"$PROGRAM_NAME"' [OPTIONS] [SOURCE] [DESTINATION]'
+  echo 'Usage: '"$PROGRAM_NAME"' [OPTIONS] [CONFIG_FILE [MAPPING_FILE]]'
   echo
-  echo "$PROGRAM_TITLE"' is a tool to backup your local files.'
-  echo 'Local directories, Samba shares and remote SSH locations are supported as backup destinations.'
+  echo "$PROGRAM_TITLE"' is a tool to backup your personal data to local or remote locations.'
   echo
-  echo 'You can either specify a single pair of backup source and destination to backup the source directory files to the destination location.'
-  echo 'However, this method only supports single location pairs and only local/locally mounted destination directories.'
-  echo 'To backup any number of directories to local as well as remote destinations, you can create profiles.'
-  echo "Example profiles are located in '~/.nb/examples'."
+  echo "The config file configures the backup destination and provides possibly required credentials. Defaults to '~/.nb/config'."
+  echo "The mapping file maps local paths to paths at the backup destination. Defaults to '~/.nb/mapping'"
   echo
   echo 'Options:'
-  echo '-h, --help	          Display this help message and exit.'
-  echo '-p, --profile <path>  Specify the path to a profile.'
-  echo '-q, --quiet           Supress all output.'
+  echo '-h, --help	              Display this help message and exit.'
+  echo '-i, --include-file <path> Specify the path to an include file. Local directories matching a pattern specified in the given file will always be included in the backup. Defaults to '\''~/.nb/include'\''. See `man rsync` for details.'
+  echo '-e, --exclude-file <path> Specify the path to an exclude file. Local directories matching a pattern specified in the given file will be excluded from the backup. Defaults to '\''~/.nb/exclude'\''. See `man rsync` for details.'
+  echo '-n, --dry-run             Perform a dry run. No changes will be made.'
+  echo '-q, --quiet               Supress all output.'
 }
 
 # Echoes an error message to stderr.
@@ -61,10 +66,19 @@ parseArguments () {
       -q|--quiet)
       QUIET=true
       ;;
-      # profile
-      -p|--profile)
-      PROFILE_PATH="$2"
+      # include file
+      -i|--include-file)
+      INCLUDE_FILE="$2"
       shift
+      ;;
+      # exclude file
+      -e|--exclude-file)
+      EXCLUDE_FILE="$2"
+      shift
+      ;;
+      # dry run
+      -n|--dry-run)
+      DRY_RUN=true
       ;;
       # unknown option
       -*)
@@ -82,145 +96,70 @@ parseArguments () {
     shift
   done
   
-  # check for valid number of parameters
-  if [ -z "$PROFILE_PATH" ]; then
-    if [ -z "$SOURCE_PATH" ] || [ -z "$TARGET_PATH" ]; then
-      fc_error 'Too few arguments!'
-      return 2
-    fi
-  fi
-  
-  # load prefixed variables from profile
-  if [ -n "$PROFILE_PATH" ]; then
-    if [ ! -f "$PROFILE_PATH" ]; then
-      fc_error "The profile '$PROFILE_PATH' does not exist!"
-      return 3
-    elif ! load_config "$PROFILE_PATH" "$CFGPREFIX"; then
+  # config file: required with default
+  if [ -n "$CONFIG_FILE" ]; then
+    if [ ! -f "$CONFIG_FILE" ]; then
+      fc_error "The configuration file '$CONFIG_FILE' does not exist!"
       return 3
     fi
-  fi
-  # override loaded variables that have been passed directly
-  local VARIABLES=( 'SOURCE_PATH' 'TARGET_PATH' )
-  override_config "$VARIABLES" "$CFGPREFIX"
-
-  # check validity of parameter values
-  if ! validateParams; then
+  elif [ -f "$DEFAULT_CONFIG_FILE" ]; then
+    CONFIG_FILE="$DEFAULT_CONFIG_FILE"
+  else
+    fc_error 'No config file available!'
     return 3
+  fi
+
+  # mapping file: required with default
+  if [ -n "$MAPPING_FILE" ]; then
+    if [ ! -f "$MAPPING_FILE" ]; then
+      fc_error "No such mapping file '$MAPPING_FILE'!"
+      return 3
+    fi
+  elif [ -f "$DEFAULT_MAPPING_FILE" ]; then
+    MAPPING_FILE="$DEFAULT_MAPPING_FILE"
+  else
+    fc_error 'No mapping file available!'
+    return 3
+  fi
+
+  # include file: optional with default
+  if [ -n "$INCLUDE_FILE" ]; then
+    if [ ! -f "$INCLUDE_FILE" ]; then
+      fc_error "No such include file '$INCLUDE_FILE'!"
+      return 3
+    fi
+  elif [ -f "$DEFAULT_INCLUDE_FILE" ]; then
+    INCLUDE_FILE="$DEFAULT_INCLUDE_FILE"
+  fi
+
+  # exclude file: optional with default
+  if [ -n "$EXCLUDE_FILE" ]; then
+    if [ ! -f "$EXCLUDE_FILE" ]; then
+      fc_error "No such exclude file '$EXCLUDE_FILE'!"
+      return 3
+    fi
+  elif [ -f "$DEFAULT_EXCLUDE_FILE" ]; then
+    EXCLUDE_FILE="$DEFAULT_EXCLUDE_FILE"
   fi
 }
 
 # Handles the parameters (arguments that aren't an option) and checks if their count is valid.
 handleParameter () {
-  # 1. parameter: source path
-  if [ -z "$SOURCE_PATH" ]; then
-    SOURCE_PATH="$1"
-  # 2. parameter: target path
-  elif [ -z "$TARGET_PATH" ]; then
-    TARGET_PATH="$1"
+  # 1. parameter: config file
+  if [ -z "$CONFIG_FILE" ]; then
+    CONFIG_FILE="$1"
+  # 2. parameter: mapping file
+  elif [ -z "$MAPPING_FILE" ]; then
+    MAPPING_FILE="$1"
   else
     # too many parameters
     return 1
   fi
 }
 
-# Validates the parameter values.
-validateParams () {
-  # validate profile (existence-check)
-  if [ -n "$PROFILE_PATH" ]; then
-    if ([ -z "$NB_SOURCE_PATH" ] || [ -z "$NB_TARGET_PATH" ]) && [ -z "$NB_MAPPING_FILE" ]; then
-      fc_error "The profile must either define source and target paths or the path to a mapping file!"
-      return 1
-    elif [ -n "$NB_MAPPING_FILE" ] && [ ! -f "$NB_MAPPING_FILE" ]; then
-      fc_error "The mapping file '$NB_MAPPING_FILE' does not exist!"
-      return 1
-    elif [ -n "$NB_EXCLUSION_FILE" ] && [ ! -f "$NB_EXCLUSION_FILE" ]; then
-      fc_error "The exclusion file '$NB_EXCLUSION_FILE' does not exist!"
-      return 1
-    fi
-  fi
-  
-  # validate source and target paths (if specified)
-  if [ -n "$NB_SOURCE_PATH" ] && [ ! -e "$NB_SOURCE_PATH" ]; then
-    fc_error "The source path '$NB_SOURCE_PATH' does not exist!"
-    return 1
-  elif [ -n "$NB_TARGET_PATH" ] && [ ! -e "$NB_TARGET_PATH" ]; then
-    fc_error "The target path '$NB_TARGET_PATH' does not exist!"
-    return 1
-  fi
-}
-
-# Loads a configuration file (bash) if it only includes variable assignments.
-# Supports empty lines, comments and prefix filtering.
-#
-# Parameters:
-# 1. file path
-# 2. (optional) variable prefix
-load_config () {
-  local CFGPATH="$1"
-  local PREFIX="$2"
-  if [ -n "$PREFIX" ]; then
-    local PREFIX="$PREFIX"_
-  fi
-  local PATTERN="^$|^#|^${PREFIX}[^ ]*=[^;\$\`]*$"
-
-  # TODO dependency egrep
-  local VIOLATIONS=$(egrep -v "$PATTERN" "$CFGPATH")
-  if [ -n "$VIOLATIONS" ]; then
-    # malformed configuration file
-    local ERROR_MSG='The configuration file is malformed. Only comments and variable declarations are allowed'
-    if [ -n "$PREFIX" ]; then
-      local ERROR_MSG="$ERROR_MSG. All variables must start with '$PREFIX'"
-    fi
-    fc_error "$ERROR_MSG."
-    fc_error "The following line(s) violate(s) this rule:\n\n${VIOLATIONS}\n"
-    return 1
-  fi
-  source "$CFGPATH"
-}
-
-# Overrides parameters loaded from a configuration file with values specified by the user directly.
-override_config () {
-  local VARIABLES="$1"
-  local PREFIX="$2"
-  for VAR in "$VARIABLES"; do
-    local VALUE="${!VAR}"
-    if [ -n "$VALUE" ]; then
-      eval "${PREFIX}_$VAR"=\$VALUE
-    fi
-  done
-}
-
 ###############################
 # main script function section
 ###############################
-
-# Checks whether a mount point is mounted or not.
-fc_is_mounted () {
-  if mount | grep "$1" >/dev/null; then
-    return 0
-  fi
-  return 1
-}
-
-# Mounts the user-specified mount point. If a Samba user is specified, the user is prompted for the password.
-fc_mount () {
-  fc_info "Mounting '$NB_MOUNTPOINT'..."
-  if [ -n "$NB_SAMBA_USER" ]; then
-    # prompt user to enter Samba account password
-    local PASSWD=$(zenity --title='SMBB Samba User Authentication' --width=315 --entry --hide-text --text="Please enter the password of your Samba user '$NB_SAMBA_USER', in order to backup your system:")
-    if [ -z "$PASSWD" ]; then
-      return 1
-    fi
-
-    # use the given credentials to mount the Samba share
-    # TODO dependency: cifs
-    mount -t cifs -o user,noauto,username="$NB_SAMBA_USER",passwd="$PASSWD" "$NB_MOUNTPOINT"
-  else
-    # mount should have everything it needs in fstab
-    mount "$NB_MOUNTPOINT"
-  fi
-  return $(fc_is_mounted "$NB_MOUNTPOINT")
-}
 
 # Initializes relevant environment variables to unlock the user's SSH key.
 fc_init_ssh () {
@@ -229,45 +168,66 @@ fc_init_ssh () {
   export SSH_AUTH_SOCK
 }
 
+fc_expand_source () {
+  local source="$1"
+  eval source="$source"
+  if [[ "$source" != */ ]]; then
+    source="$source/"
+  fi
+  echo "$source"
+}
+fc_expand_target () {
+  local target
+  target="$1"
+  if [ "$target" == "." ]; then
+    target=
+  fi
+  if [[ "$target" != /* ]]; then
+    target="${BACKUP_LOCATION%/}/$target"
+  fi
+  echo "${target%/}"
+}
+
 # Pushes a directory structure from one location to another.
 # Supports NB_EXCLUSION_FILE and NB_DRY_RUN.
 fc_push () {
-  local SOURCE="$1"
-  local TARGET="$2"
+  local SOURCE=$( fc_expand_source "$1" )
+  local TARGET=$( fc_expand_target "$2" )
   local ARGS=()
+  fc_info "Backing up '$SOURCE' to '$TARGET':"
+
   # output: human readable, change summary, progress bar
   ARGS+=('-h' '-i' '--progress')
   # transfer: archive files, no space-splitting, skip files if target newer, compress
   ARGS+=('-a' '-s' '-u' '-z')
+  # inclusion file
+  if [ -n "$INCLUDE_FILE" ]; then
+    ARGS+=("--include-from=$INCLUDE_FILE")
+  fi
   # exclusion file
-  if [ -n "$NB_EXCLUSION_FILE" ]; then
-    ARGS+=("--exclude-from=$NB_EXCLUSION_FILE")
+  if [ -n "$EXCLUDE_FILE" ]; then
+    ARGS+=("--exclude-from=$EXCLUDE_FILE")
   fi
   # dry run
-  if [ "$NB_DRY_RUN" = true ]; then
+  if "$DRY_RUN"; then
     fc_warn 'THIS IS A DRY RUN - NO CHANGES WILL BE PERFORMED!'
     ARGS+=('-n')
   fi
 
-  if [ -n "$NB_SAMBA_USER" ]; then
-    # disable permissions if backup destination is Samba share
-    ARGS+=('--no-p' "$SOURCE" "$TARGET")
-  elif [ -n "$NB_SSH_REMOTE" ]; then
+  if [ -n "$REMOTE_HOST" ]; then
     ARGS+=('-e' 'ssh' "$SOURCE")
 
     # connect to ssh-agent
-    local USER=$( whoami )
     fc_info "SSH mode enabled, using keys of user '$USER'"
     fc_init_ssh
 
     # specify SSH remote (and username)
-    if [ -n "$NB_SSH_USERNAME" ]; then
-      ARGS+=("$NB_SSH_USERNAME@$NB_SSH_REMOTE:$TARGET")
+    if [ -n "$REMOTE_USERNAME" ]; then
+      ARGS+=("$REMOTE_USERNAME@$REMOTE_HOST:$TARGET")
     else
-      ARGS+=("$NB_SSH_REMOTE:$TARGET")
+      ARGS+=("$REMOTE_HOST:$TARGET")
     fi
   fi
-  #TODO log rsync/program output to daily/instance log file
   rsync "${ARGS[@]}"
 }
 
@@ -289,37 +249,14 @@ if [ -f "$LOCKPATH" ]; then
 fi
 trap 'rm -f "$LOCKPATH"; exit $?' INT TERM EXIT
 
-## mount Samba share if necessary
-UNMOUNT=false
-if [ -n "$NB_MOUNTPOINT" ]; then
-  # check if not already mounted
-  if fc_is_mounted "$NB_MOUNTPOINT"; then
-    fc_info "'$NB_MOUNTPOINT' is already mounted."
-  # check if mounting failed
-  elif ! fc_mount "$NB_MOUNTPOINT"; then
-    fc_error "Failed to mount '$NB_MOUNTPOINT'!"
-    exit 6
-  else
-    UNMOUNT=true
-  fi
-fi
+## load the config file
+source "$CONFIG_FILE"
 
-## backup files
-if [ -n "$NB_MAPPING_FILE" ]; then
-  # backup all mapping entries
-  grep -v -e '^$' -e '^#' "$NB_MAPPING_FILE" | while read from to; do
-    fc_info "backing up '$from' to '$to'"
-    fc_push "$from" "$to"
-  done
-else
-  # backup single directory
-  fc_push "$NB_SOURCE" "$NB_TARGET"
-fi
-
-## unmount Samba share if mounted during execution
-if [ "$NB_UNMOUNT" = true ]; then
-  umount "$NB_MOUNTPOINT"
-fi
+## backup all mapping entries
+grep -v -e '^$' -e '^#' "$MAPPING_FILE" | while read from to; do
+  fc_push "$from" "$to"
+done
+fc_info 'Backup process completed.'
 
 ## remove lock file and trapping
 rm -f "$LOCKPATH"

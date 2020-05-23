@@ -6,4 +6,4 @@ SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # period  delay  job-identifier  command
-1         2      user.backup     /usr/local/bin/backupnas.sh -p ~/.nb/backup.config > /tmp/user.backup.log
+1         15     user.backup     /usr/local/bin/backupnas &> ~/.nb/logs/"$( date +'%Y-%m-%d' )".log

@@ -1,0 +1,13 @@
+# hidden folders
+/.*/
+# cloud storages
+/Dropbox/
+/Google Drive/
+/Nextcloud/
+/Owncloud/
+# system files
+/.dbus/
+/.gvfs/
+
+# git index
+.git/
