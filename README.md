@@ -15,6 +15,8 @@ The backup location can be a local directory or a remote location, accessed via 
        git clone git@github.com:sebschlicht/backupnas.git
        cd backupnas
        ./install.sh
+   
+   *Note*: You will be required to authorize the installation (`sudo`) with your password.
 
 1. Adapt the configuration (`~/.nb/config`) to your needs:
 
