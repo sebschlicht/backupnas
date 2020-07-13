@@ -7,6 +7,7 @@ By default, a daily backup of your entire home directory will be created, where 
 Locally removed files, however, will be left at the backup location untouched.
 
 The backup location can be a local directory or a remote location, accessed via SSH (public key authentication).
+If you do not have a machine setup to serve as your backup destination already, consider my Ansible [NAS setup playbook](https://github.com/sebschlicht/ansible-nas) to get things up and running ASAP.
 
 ## Getting Started
 
