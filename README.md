@@ -7,13 +7,16 @@ By default, a daily backup of your entire home directory will be created, where 
 Locally removed files, however, will be left at the backup location untouched.
 
 The backup location can be a local directory or a remote location, accessed via SSH (public key authentication).
+
 If you do not have a machine setup to serve as your backup destination already, consider my Ansible [NAS setup playbook](https://github.com/sebschlicht/ansible-nas) to get things up and running ASAP.
+However, you might as well create local backup for now.
 
 ## Getting Started
 
+1. Download and extract the latest release or checkout the source code directly.
+
 1. Install the backup script and its [dependencies](dependencies-and-compatibility) via the installer:
 
-       git clone git@github.com:sebschlicht/backupnas.git
        cd backupnas
        ./install.sh
    
@@ -27,8 +30,8 @@ If you do not have a machine setup to serve as your backup destination already, 
    
    *Note*: You may leave out the `REMOTE_*` options if you want to backup your files to a local directory.
 
-1. Done. Your home directory will be backed up to the specified location on a daily basis.  
-   You can find the output of each day's run(s) in `~/.nb/logs/`.
+Done. Your home directory will be backed up to the specified location on a daily basis.  
+You can find the output of each day's run(s) in `~/.nb/logs/`.
 
 ## Further Configuration
 
