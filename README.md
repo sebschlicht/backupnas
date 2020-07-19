@@ -6,19 +6,28 @@ In contrast to backup tools like *duplicity*, *NB* stores your files in a way th
 By default, a daily backup of your entire home directory will be created, where new files will be added and existing files will be updated.
 Locally removed files, however, will be left at the backup location untouched.
 
+## Backup Destination
+
 The backup location can be a local directory or a remote location, accessed via SSH (public key authentication).
+Any machine with a SSH server running will do fine.
 
 If you do not have a machine setup to serve as your backup destination already, consider my Ansible [NAS setup playbook](https://github.com/sebschlicht/ansible-nas) to get things up and running ASAP.
-However, you might as well create local backup for now.
+Special features include:
+
+* access from numerous devices (Windows, Linux, mobile, smartTVs)
+* mirroring the backup to a second location
+* all in a single, configurable command (Ansible playbook)
+
+However, you might as well create local backups for now.
 
 ## Getting Started
 
-1. Download and extract the latest release or checkout the source code directly.
+1. Download and extract the [latest release](releases/latest) or checkout the source code directly.
 
 1. Install the backup script and its [dependencies](dependencies-and-compatibility) via the installer:
 
-       cd backupnas
-       ./install.sh
+       $ cd backupnas
+       $ ./install.sh
    
    *Note*: You will be required to authorize the installation (`sudo`) with your password.
 
@@ -28,21 +37,17 @@ However, you might as well create local backup for now.
        REMOTE_USERNAME=sebschlicht
        BACKUP_LOCATION=/mnt/nas/primary/backup/sebschlicht
    
-   *Note*: You may leave out the `REMOTE_*` options if you want to backup your files to a local directory.
+   *Note*: You may leave out the `REMOTE_*` options if you want to store your backup in a local directory.
 
 Done. Your home directory will be backed up to the specified location on a daily basis.  
-You can find the output of each day's run(s) in `~/.nb/logs/`.
+You can find the logs of performed backups in `~/.nb/logs/`.
 
 ## Further Configuration
 
-For more information about the configuration options head to the [project's wiki](../../wiki) which covers how to
+For more information about the configuration options head to the [project's wiki](../../wiki) which covers how to:
 
 * exclude files from the backup
-* backup files that are outside of your home directory
-* configure a remote machine to host the backup(s)
-  * access your files from numerous devices (Windows, Linux, mobile, smartTVs)
-  * by adapting configuration files and running a single Ansible playbook
-  * mirror the backup to a second location (backup the backup)
+* backup additional/different locations
 
 ## Dependencies and Compatibility
 
