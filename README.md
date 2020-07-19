@@ -22,9 +22,9 @@ However, you might as well create local backups for now.
 
 ## Getting Started
 
-1. Download and extract the [latest release](releases/latest) or checkout the source code directly.
+1. Download and extract the [latest release](https://github.com/sebschlicht/backupnas/releases/latest) or checkout the source code directly.
 
-1. Install the backup script and its [dependencies](dependencies-and-compatibility) via the installer:
+1. Install the backup script and its [dependencies](#dependencies-and-compatibility) via the installer:
 
        $ cd backupnas
        $ ./install.sh
@@ -44,7 +44,7 @@ You can find the logs of performed backups in `~/.nb/logs/`.
 
 ## Further Configuration
 
-For more information about the configuration options head to the [project's wiki](../../wiki) which covers how to:
+For more information about the configuration options head to the [project's wiki](https://github.com/sebschlicht/backupnas/wiki) which covers how to:
 
 * exclude files from the backup
 * backup additional/different locations
