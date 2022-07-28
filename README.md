@@ -42,6 +42,10 @@ However, you might as well create local backups for now.
 Done. Your home directory will be backed up to the specified location on a daily basis.  
 You can find the logs of performed backups in `~/.nb/logs/`.
 
+To verify your setup is working, you may perform a dry-run using:
+
+    backupnas --dry-run
+
 ## Further Configuration
 
 For more information about the configuration options head to the [project's wiki](https://github.com/sebschlicht/backupnas/wiki) which covers how to:
