@@ -1,6 +1,11 @@
 #!/bin/bash
 # Shell script to install the backup script.
 
+PROFILE_ENTRY='# run anacron in user mode
+if [ -f "${HOME}/etc/anacrontab" ]; then
+  /usr/sbin/anacron -s -t "${HOME}/etc/anacrontab" -S "${HOME}/var/spool/anacron"
+fi'
+
 fc_anacron () {
   # create user configuration directory
   USER_DCFG=~/etc
@@ -10,7 +15,7 @@ fc_anacron () {
       exit 1
     fi
   fi
-  
+
   # create user anacrontab or append job
   ANATAB=anacrontab
   USER_ANATAB="$USER_DCFG"/anacrontab
@@ -32,17 +37,15 @@ fc_anacron () {
       exit 1
     fi
   fi
-  
+
   # run user anacron on login
-  PROF=.profile
   USER_PROFILE=~/.profile
-  if [ ! -f "$USER_PROFILE" ]; then
-    cp "$PROF" "$USER_PROFILE"
-  else
-    PROFENT=$( cat "$PROF" )
-    if ! grep -q "$USER_PROFILE" -e "$PROFENT"; then
-      echo "$PROFENT" >> "$USER_PROFILE"
-    fi
+  if
+      [ ! -f "$USER_PROFILE" ] ||
+      ! [[ "$( cat $USER_PROFILE )" =~ "$PROFILE_ENTRY" ]]; then
+    echo >> "$USER_PROFILE"
+    echo "$PROFILE_ENTRY" >> "$USER_PROFILE"
+    echo >> "$USER_PROFILE"
   fi
 }
 

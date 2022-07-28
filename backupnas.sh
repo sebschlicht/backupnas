@@ -198,8 +198,8 @@ fc_push () {
 
   # output: human readable, change summary, progress bar
   ARGS+=('-h' '-i' '--progress')
-  # transfer: archive files, no space-splitting, skip files if target newer, compress
-  ARGS+=('-a' '-s' '-u' '-z')
+  # transfer: archive files, no space-splitting, skip files if target newer, compress, skip empty source files
+  ARGS+=('-a' '-s' '-u' '-z' '--min-size=1')
   # inclusion file
   if [ -n "$INCLUDE_FILE" ]; then
     ARGS+=("--include-from=$INCLUDE_FILE")
